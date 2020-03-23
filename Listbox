@@ -1,0 +1,112 @@
+<# This form was created using POSHGUI.com  a free online gui designer for PowerShell
+.NAME
+    Untitled
+#>
+
+Add-Type -AssemblyName System.Windows.Forms
+[System.Windows.Forms.Application]::EnableVisualStyles()
+
+$Form                            = New-Object system.Windows.Forms.Form
+$Form.ClientSize                 = '340,242'
+$Form.text                       = "Form"
+$Form.TopMost                    = $false
+
+$Create_User                     = New-Object system.Windows.Forms.Button
+$Create_User.text                = "Nouvel Utilisateur"
+$Create_User.width               = 133
+$Create_User.height              = 56
+$Create_User.visible             = $true
+$Create_User.location            = New-Object System.Drawing.Point(50,71)
+$Create_User.Font                = 'Microsoft Sans Serif,10'
+
+$Matricule                       = New-Object system.Windows.Forms.TextBox
+$Matricule.multiline             = $false
+$Matricule.text                  = "Rentrez le matricule"
+$Matricule.width                 = 157
+$Matricule.height                = 40
+$Matricule.visible               = $false
+$Matricule.location              = New-Object System.Drawing.Point(57,177)
+$Matricule.Font                  = 'Microsoft Sans Serif,10'
+
+$Ok                              = New-Object system.Windows.Forms.Button
+$Ok.text                         = "OK"
+$Ok.width                        = 61
+$Ok.height                       = 54
+$Ok.visible                      = $false
+$Ok.location                     = New-Object System.Drawing.Point(247,156)
+$Ok.Font                         = 'Microsoft Sans Serif,10'
+
+
+$Form.controls.AddRange(@($Create_User,$Matricule,$Ok))
+
+$Create_User.Add_Click({ new_user_matricule })
+$Ok.Add_Click({ check_matricule })
+
+function check_matricule { 
+    $mat = "Le matricule " + $Matricule.text + " existe."
+    $non_mat = "Le matricule " + $Matricule.text + " n'existe pas."
+    $user = Get-ADUser $Matricule.text
+    
+    If ($user -eq $Null)
+    {
+    $Matricule_Non_Ok                = New-Object system.Windows.Forms.Label
+    $Matricule_Non_Ok.text           = $non_mat
+    $Matricule_Non_Ok.BackColor      = "#d0021b"
+    $Matricule_Non_Ok.AutoSize       = $true
+    $Matricule_Non_Ok.width          = 70
+    $Matricule_Non_Ok.height         = 0
+    $Matricule_Non_Ok.Anchor         = 'top,right,bottom,left'
+    $Matricule_Non_Ok.location       = New-Object System.Drawing.Point(36,42)
+    $Matricule_Non_Ok.Font           = 'Microsoft Sans Serif,10'
+    $Matricule_Non_Ok.ForeColor      = "#ffffff"
+
+    $Form.controls.AddRange(@($Matricule_Non_Ok)) 
+    }
+    
+    Else{
+    $Matricule.Visible               = $false
+
+    $label = New-Object System.Windows.Forms.Label
+    $label.Location = New-Object System.Drawing.Point(10,20)
+    $label.Size = New-Object System.Drawing.Size(280,20)
+    $label.Text = 'Merci de choisir les droits à attribuer:'
+    $form.Controls.Add($label)
+
+    $listBox = New-Object System.Windows.Forms.Listbox
+    $listBox.Location = New-Object System.Drawing.Point(10,40)
+    $listBox.Size = New-Object System.Drawing.Size(260,20)
+
+    $listBox.SelectionMode = 'MultiExtended'
+
+    [void] $listBox.Items.Add('Item 1')
+    [void] $listBox.Items.Add('Item 2')
+    [void] $listBox.Items.Add('Item 3')
+    [void] $listBox.Items.Add('Item 4')
+    [void] $listBox.Items.Add('Item 5')
+
+    $listBox.Height = 70
+    $form.Controls.Add($listBox)
+    $form.Topmost = $true
+
+
+           
+    $Ok.Add_Click({ choix_droits })
+
+}}
+
+function choix_droits {
+     $x = [String]$listBox.SelectedItem
+    write-host $x
+     
+}
+
+function new_user_matricule {
+    $Create_User.visible             = $false
+    $Matricule.visible               = $true
+    $Ok.visible                      = $true
+}
+
+
+#Write your logic code here
+
+$Form.ShowDialog()
